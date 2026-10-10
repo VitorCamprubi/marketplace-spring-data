@@ -16,5 +16,36 @@ services:
       timeout: 5s
       retries: 5
 
+  catalog-database:
+    image: mysql:9.6
+    environment:
+      MYSQL_DATABASE: catalog
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: app
+      MYSQL_PASSWORD: app
+    ports:
+      - "3308:3306"
+    volumes:
+      - catalog_data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-uapp", "-papp" ]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+
+  catalog-metadata-database:
+    image: mongo:8.2
+    ports:
+      - "27018:27017"
+    volumes:
+      - metadata_data:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 5s
+      timeout: 5s
+      retries: 3
+
 volumes:
   registration_data:
+  catalog_data:
+  metadata_data:
